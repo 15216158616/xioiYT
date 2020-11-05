@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanxiatech.xgj.funeral.system.dao.MenuResourceDaoImpl">
+
+    <sql id="tableName">yx_common_menu_resource</sql>
+
+    <!--新增菜单资源-->
+    <insert id="saveList">
+        insert into
+        <include refid="tableName"/>
+        (id,`menu_id`,resource_id,data_status,create_time, create_user_id)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.menu.id},#{item.resource.id},#{item.dataStatus},#{item.createTime}, #{item.createUserId})
+        </foreach>
+    </insert>
+
+    <!--根据菜单id删除已有资源菜单-->
+    <delete id="deleteMenuId" parameterType="String">
+        update <include refid="tableName"/>
+        set
+            data_status = 0
+        <where>
+            menu_id = #{menuId}
+        </where>
+    </delete>
+
+    <!--根据多个菜单id删除已有资源菜单-->
+    <delete id="deleteMenuIds" parameterType="List">
+        update <include refid="tableName"/>
+        set
+        data_status = 0
+        <where>
+            menu_id in
+            <foreach collection="list" item="menuId" open=" (" separator="," close=")">
+                #{menuId}
+            </foreach>
+        </where>
+    </delete>
+
+    <!--根据菜单id获取资源-->
+    <select id="getByMenuId" parameterType="String" resultMap="menuResourceMap">
+        select * from
+        <include refid="tableName"/>
+        where menu_id = #{menuId} and data_status = 1
+    </select>
+
+    <!--单个id查询菜单资源-->
+    <select id="getMenuResourceById" parameterType="String" resultMap="menuResourceMap">
+        select * from <include refid="tableName"/>
+        where id = #{id}
+    </select>
+
+    <!--多个id查询菜单资源-->
+    <select id="getMenuResourceByIds" resultMap="menuResourceMap">
+        select * from <include refid="tableName"/>
+        where id in
+        <foreach collection="list" item="id" open=" (" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <resultMap id="menuResourceMap" type="MenuResource" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="menu" javaType="Menu">
+            <id column="menu_id" property="id"/>
+        </association>
+        <association property="resource" javaType="Resource">
+            <id column="resource_id" property="id"/>
+        </association>
+    </resultMap>
+
+</mapper>

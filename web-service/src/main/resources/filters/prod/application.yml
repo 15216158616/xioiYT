@@ -1,0 +1,61 @@
+server:
+  port: 9215
+spring:
+  application:
+    name: web-service
+  http:
+        multipart:
+          max-file-size: -1
+          max-request-size: -1
+  jmx:
+    default-domain: ${spring.application.name}
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+      url: jdbc:mysql://127.0.0.1:3306/funeral_cloud?autoReconnect=true&useSSL=false&characterEncoding=utf-8&allowMultiQueries=true
+      username: funeral_cloud
+      password: funeral_cloud@MySQL56
+      type: com.alibaba.druid.pool.DruidDataSource
+      druid:
+        initial-size: 5
+        max-active: 10
+        min-idle: 10
+        max-wait: 10000
+      driver-class-name: com.mysql.jdbc.Driver
+#  dubbo:
+#    registry:
+#      address:  zookeeper://192.168.1.185:2181
+#    protocol:
+#      port: 9415
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password: Yuanxiatech@Redis404
+    pool:
+      max-active: 10
+      max-wait: 8
+      max-idle: 8
+      min-idle: 0
+    timeout: 0
+
+cookie:
+  name: xgj-funeral
+  domain: nabyg.pietycloud.com
+  path: /
+  expHour: 8
+mybatis:
+  # 配置类型别名
+  #type-aliases-package: com.yuanxiatech.xgj.funeral
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件哈
+  mapperLocations: classpath*:mybatis/**/*-mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis.xml
+
+attach:
+  local:
+    attachDomain: http://nabyg.pietycloud.com
+    storagePath: /data/file_data
+
+

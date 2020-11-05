@@ -1,0 +1,64 @@
+server:
+  port: 9221
+spring:
+  application:
+    name: web-service
+  http:
+      multipart:
+        max-file-size: -1
+        max-request-size: -1
+  jmx:
+    default-domain: ${spring.application.name}
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+#      url: jdbc:mysql://122.112.139.117:3306/funeral_cloud?autoReconnect=true&useSSL=false&characterEncoding=utf-8&allowMultiQueries=true
+#      username: funeral_cloud
+#      password: funeral_cloud@MySQL56
+      url: jdbc:mysql://localhost:3306/xgj_funeral_test?autoReconnect=true&useSSL=false&characterEncoding=utf-8&allowMultiQueries=true
+      username: root
+      password: sa
+      type: com.alibaba.druid.pool.DruidDataSource
+      druid:
+        initial-size: 1
+        max-active: 10
+        min-idle: 10
+        max-wait: 10000
+      driver-class-name: com.mysql.jdbc.Driver
+  redis:
+    database: 0
+    host: 112.48.17.31
+    port: 6380
+    password: Yuanxiatech@123456
+    pool:
+      max-active: 10
+      max-wait: 8
+      max-idle: 8
+      min-idle: 0
+    timeout: 0
+
+cookie:
+  name: xgj-funeral
+  domain: 127.0.0.1
+  path: /
+  expHour: 8
+mybatis:
+  # 配置类型别名
+  #type-aliases-package: com.yuanxiatech.xgj.funeral
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件哈
+  mapperLocations: classpath*:mybatis/**/*-mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis.xml
+
+attach:
+  local:
+    attachDomain: http://funeral.pietycloud.com
+    storagePath: /data/file_data
+
+
+
+
+
+
+

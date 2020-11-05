@@ -1,0 +1,324 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanxiatech.xgj.funeral.drivetask.dao.FuneralDriveTaskDaoImpl">
+
+    <sql id="tableName">yx_funeral_drive_task</sql>
+
+    <!--新增-->
+    <insert id="insertFuneralDriveTask">
+        insert into <include refid="tableName"/>(
+        id,dead_name,dead_gender,dead_age,dead_profession,death_time,death_cause,dead_address,death_address,task_status,report_user,record_user,operator,
+        relation_name,relation_phone,dead_relation,task_time,collect_address,coffin,car_id,remark,passenger_car,handling_information,car_type,
+        create_time, create_user_id, data_status)
+        values(
+        #{id},#{deadName},#{deadGender},#{deadAge},#{deadProfession},#{deathTime},#{deathCause},#{deadAddress},#{deathAddress},#{taskStatus},#{reportUser},#{recordUser},#{operator},
+        #{relationName},#{relationPhone},#{deadRelation},#{taskTime},#{collectAddress},#{coffin},#{car.id},#{remark},#{passengerCar},#{handlingInformation},#{carType},
+        #{createTime}, #{createUserId},#{dataStatus});
+        <if test="staffList != null and staffList.size > 0">
+            <foreach collection="staffList" item="item" separator=";">
+                insert into yx_funeral_drive_task_staff
+                (id,drive_task_id,staff_id)
+                values(REPLACE(UUID(), '-', ''),#{id},#{item.id})
+            </foreach>
+        </if>
+    </insert>
+
+    <!--逻辑删除-->
+    <delete id="logicDeleteFuneralDriveTasks" parameterType="List">
+        <foreach collection="list" item="item" separator=";">
+            update <include refid="tableName" />
+            set
+            delete_time = #{item.deleteTime},
+            delete_user_id = #{item.deleteUserId},
+            data_status = #{item.dataStatus}
+            <where>
+                id = #{item.id}
+            </where>
+        </foreach>
+    </delete>
+
+    <!--回车-->
+    <update id="taskFinishs" parameterType="List">
+        <foreach collection="list" item="item" separator=";">
+            update <include refid="tableName" />
+            set
+            return_time = #{item.returnTime},
+            last_update_time = #{item.lastUpdateTime},
+            last_update_user_id = #{item.lastUpdateUserId},
+            task_status = #{item.taskStatus}
+            <where>
+                id = #{item.id}
+            </where>
+        </foreach>
+    </update>
+
+    <!--删除接运随车员工-->
+    <delete id="deleteDriveTaskStaff" parameterType="String">
+        DELETE
+        FROM yx_funeral_drive_task_staff
+        WHERE drive_task_id=#{driveTaskId};
+    </delete>
+
+    <!--修改-->
+    <update id="updateFuneralDriveTask">
+        update <include refid="tableName"/>
+        <set>
+            <if test="carType != null and carType != ''">
+                car_type = #{carType},
+            </if>
+            <if test="reportUser != null and reportUser != ''">
+                report_user = #{reportUser},
+            </if>
+            <if test="recordUser != null and recordUser != ''">
+                record_user = #{recordUser},
+            </if>
+            <if test="operator != null and operator != ''">
+                operator = #{operator},
+            </if>
+            <if test="taskStatus != null">
+                task_status = #{taskStatus},
+            </if>
+            <if test="deadName != null and deadName != ''">
+                dead_name = #{deadName},
+            </if>
+            <if test="deadGender != null and deadGender != ''">
+                dead_gender = #{deadGender},
+            </if>
+            <if test="deadAge != null and deadAge != ''">
+                dead_age = #{deadAge},
+            </if>
+            <if test="deadProfession != null and deadProfession != ''">
+                dead_profession = #{deadProfession},
+            </if>
+            <if test="deathTime != null">
+                death_time = #{deathTime},
+            </if>
+            <if test="deathCause != null and deathCause != ''">
+                death_cause = #{deathCause},
+            </if>
+            <if test="deadAddress != null and deadAddress != ''">
+                dead_address = #{deadAddress},
+            </if>
+            <if test="deathAddress != null and deathAddress != ''">
+                death_address = #{deathAddress},
+            </if>
+            <if test="relationName != null and relationName != ''">
+                relation_name = #{relationName},
+            </if>
+            <if test="relationPhone != null and relationPhone != ''">
+                relation_phone = #{relationPhone},
+            </if>
+            <if test="deadRelation != null and deadRelation != ''">
+                dead_relation = #{deadRelation},
+            </if>
+            <if test="taskTime != null">
+                task_time = #{taskTime},
+            </if>
+            <if test="collectAddress != null and collectAddress != ''">
+                collect_address = #{collectAddress},
+            </if>
+            <if test="coffin != null and coffin != ''">
+                coffin = #{coffin},
+            </if>
+            <if test="car != null">
+                car_id = #{car.id},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="passengerCar != null and passengerCar != ''">
+                passenger_car = #{passengerCar},
+            </if>
+            <if test="handlingInformation != null and handlingInformation != ''">
+                handling_information = #{handlingInformation},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="lastUpdateUserId != null and lastUpdateUserId != ''">
+                last_update_user_id = #{lastUpdateUserId}
+            </if>
+        </set>
+        where id = #{id};
+        <if test="staffList != null and staffList.size > 0">
+            <foreach collection="staffList" item="item" separator=";">
+                insert into yx_funeral_drive_task_staff
+                (id,drive_task_id,staff_id)
+                values(REPLACE(UUID(), '-', ''),#{id},#{item.id})
+            </foreach>
+        </if>
+    </update>
+
+    <!--查询列表-->
+    <select id="queryByParam" parameterType="FuneralDriveTaskQueryParam" resultMap="FuneralDriveTaskMap">
+        select t1.*,t2.car_num,t2.class_name,t2.car_type car_carType
+        from <include refid="tableName"/> t1
+        left join yx_funeral_car t2 on t1.car_id = t2.id
+        <where>
+            <if test="staffName != null and staffName != ''">
+                and t1.id in(
+                SELECT
+                t1.drive_task_id
+                FROM
+                yx_funeral_drive_task_staff t1,
+                yx_funeral_staff t2
+                WHERE t2.id = t1.staff_id AND t2.`name` like  concat('%',#{staffName},'%')
+                )
+            </if>
+            <if test="carNum != null and carNum != ''">
+                and t2.car_num like  concat('%',#{carNum},'%')
+            </if>
+            <if test="deadName != null and deadName != ''">
+                and t1.dead_name like  concat('%',#{deadName},'%')
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and t1.task_time >= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and t1.task_time &lt; #{endTime}
+            </if>
+            and t1.data_status = 1
+        </where>
+        order by t1.create_time desc
+    </select>
+
+    <select id="getFuneralDriveTaskById" parameterType="String" resultMap="FuneralDriveTaskMap">
+        select t1.*,t2.car_num,t2.class_name,t2.car_type car_carType
+        from <include refid="tableName"/> t1
+        left join yx_funeral_car t2 on t1.car_id = t2.id
+        where t1.id = #{id}
+    </select>
+
+    <select id="taskStatisticsQuery" parameterType="FuneralDriveTaskQueryParam" resultType="map">
+        SELECT
+        t1.id,t1.name,t1.type,count(t1.id) taskCount
+        FROM
+        yx_funeral_staff t1,
+        yx_funeral_drive_task_staff t2,
+        yx_funeral_drive_task t3,
+        yx_funeral_car t4
+        WHERE t1.id=t2.staff_id
+        AND t2.drive_task_id=t3.id
+        AND t4.id = t3.car_id
+        <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+            AND t3.task_time >= #{startTime}
+            AND t3.task_time &lt; #{endTime}
+        </if>
+        <if test="carNum != null and carNum != ''">
+            AND t4.car_num LIKE concat('%',#{carNum},'%')
+        </if>
+        GROUP BY t1.id
+        ORDER BY t1.type
+    </select>
+
+    <select id="driveTaskStatusQuery" parameterType="FuneralDriveTaskQueryParam" resultType="map">
+        SELECT
+        t1.car_type,
+        t1.sumCount,
+        ifnull(t2.alreadyCount,0)as alreadyCount,
+        t1.sumCount - ifnull(t2.alreadyCount,0) leisureCount
+        FROM
+        (
+        SELECT
+        count(*) sumCount,
+        car_type
+        FROM
+        yx_funeral_car
+        WHERE
+        data_status = 1
+        AND using_status = 1
+        GROUP BY
+        car_type
+        ) t1
+        LEFT JOIN (
+        SELECT
+        count(*) alreadyCount,
+        car_type
+        FROM
+        yx_funeral_drive_task
+        WHERE
+        task_status IN (0, 1, 2)
+        AND data_status = 1
+        AND task_time >= #{startTime}
+        AND task_time &lt; #{endTime}
+        AND car_type != ''
+        AND car_type IS NOT NULL
+        GROUP BY
+        car_type
+        ) t2 ON t1.car_type = t2.car_type
+        ORDER BY FIELD(t1.car_type,'普通','中档','高档')
+    </select>
+
+    <select id="someDayTaskCount" parameterType="FuneralDriveTaskQueryParam" resultType="map">
+        SELECT
+        t1.count count1,t2.count count2,t3.count count3
+        FROM (
+        SELECT
+        count(*) count
+        FROM
+        yx_funeral_drive_task
+        WHERE
+        task_status IN (0, 1, 2)
+        AND data_status = 1
+        AND task_time >= concat(substring(#{startTime}, 1, 10),' 08:00')
+        AND task_time &lt; concat(substring(#{startTime}, 1, 10),' 11:30')
+        AND car_type != ''
+        AND car_type IS NOT NULL ) t1,
+        (
+        SELECT
+        count(*) count
+        FROM
+        yx_funeral_drive_task
+        WHERE
+        task_status IN (0, 1, 2)
+        AND data_status = 1
+        AND task_time >= concat(substring(#{startTime}, 1, 10),' 12:00')
+        AND task_time &lt; concat(substring(#{startTime}, 1, 10),' 14:00')
+        AND car_type != ''
+        AND car_type IS NOT NULL ) t2,
+        (
+        SELECT
+        count(*) count
+        FROM
+        yx_funeral_drive_task
+        WHERE
+        task_status IN (0, 1, 2)
+        AND data_status = 1
+        AND task_time >= concat(substring(#{startTime}, 1, 10),' 14:00')
+        AND task_time &lt; concat(substring(#{startTime}, 1, 10),' 23:59')
+        AND car_type != ''
+        AND car_type IS NOT NULL ) t3
+    </select>
+
+    <select id="getFuneralDriveTaskByIds" resultType="FuneralDriveTask">
+        select * from
+        <include refid="tableName"/>
+        where id in
+        <foreach collection="list" item="id" open=" (" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getByDriveTaskIds" resultType="FuneralStaff">
+        select t1.*,t2.drive_task_id targetId
+        from yx_funeral_staff t1,yx_funeral_drive_task_staff t2
+        where t1.id=t2.staff_id
+        and t2.drive_task_id in
+        <foreach collection="list" item="id" open=" (" separator="," close=")">
+            #{id}
+        </foreach>
+        order BY t1.type
+    </select>
+
+    <resultMap id="FuneralDriveTaskMap" type="FuneralDriveTask" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="car" javaType="FuneralCar">
+            <id column="car_id" property="id"/>
+            <id column="car_num" property="carNum"/>
+            <id column="class_name" property="className"/>
+            <id column="car_carType" property="carType"/>
+        </association>
+    </resultMap>
+
+</mapper>

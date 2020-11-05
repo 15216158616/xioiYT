@@ -1,0 +1,96 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanxiatech.xgj.funeral.drivetask.dao.FuneralStaffDaoImpl">
+
+    <sql id="tableName">yx_funeral_staff</sql>
+
+    <!--新增菜单-->
+    <insert id="insertFuneralStaff">
+        insert into <include refid="tableName"/>
+        (
+        id,name,type,phone,gender,age,create_time, create_user_id, data_status
+        )
+        values
+        (
+        #{id},#{name},#{type},#{phone},#{gender},#{age},#{createTime}, #{createUserId},#{dataStatus}
+        );
+
+
+
+    </insert>
+
+    <!--逻辑删除菜单-->
+    <delete id="logicDeleteFuneralStaffs" parameterType="List">
+        <foreach collection="list" item="item" separator=";">
+            update <include refid="tableName" />
+            set
+            delete_time = #{item.deleteTime},
+            delete_user_id = #{item.deleteUserId},
+            data_status = #{item.dataStatus}
+            <where>
+                id = #{item.id}
+            </where>
+        </foreach>
+    </delete>
+
+    <!--修改菜单-->
+    <update id="updateFuneralStaff">
+        update <include refid="tableName"/>
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender},
+            </if>
+            <if test="age != null and age != ''">
+                age = #{age},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="lastUpdateUserId != null and lastUpdateUserId != ''">
+                last_update_user_id = #{lastUpdateUserId}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--查询菜单列表-->
+    <select id="queryByParam" parameterType="FuneralStaffQueryParam" resultType="FuneralStaff">
+        select * from <include refid="tableName"/>
+        <where>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            and data_status = 1
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="getFuneralStaffById" parameterType="String" resultType="FuneralStaff">
+        select * from
+        <include refid="tableName"/>
+        where id = #{id}
+    </select>
+
+    <select id="getFuneralStaffByIds" resultType="FuneralStaff">
+        select * from
+        <include refid="tableName"/>
+        where id in
+        <foreach collection="list" item="id" open=" (" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

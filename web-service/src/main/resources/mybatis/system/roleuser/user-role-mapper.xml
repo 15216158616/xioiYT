@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanxiatech.xgj.funeral.system.dao.UserRoleDaoImpl">
+
+    <sql id="tableName">yx_common_user_role</sql>
+
+    <!--批量新增-->
+    <insert id="saveList">
+        insert into
+        <include refid="tableName"/>
+        (id,role_id,user_id,create_user_id,create_time,data_status)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.role.id},#{item.user.id},#{item.createUserId},#{item.createTime},#{item.dataStatus})
+        </foreach>
+
+    </insert>
+
+    <!--角色id删除用户-->
+    <delete id="deleteByRoleId" parameterType="map">
+        update <include refid="tableName"></include>
+        set delete_time = #{deleteTime},delete_user_id = #{deleteUserId},data_status = 0
+        where role_id = #{roleId}
+    </delete>
+
+    <!--用户id删除角色-->
+    <delete id="deleteByUserId" parameterType="map">
+        update <include refid="tableName"></include>
+        set delete_time = #{deleteTime},delete_user_id = #{deleteUserId},data_status = 0
+        where user_id = #{userId}
+    </delete>
+
+    <!--角色查找用户-->
+    <select id="getByRoleId" parameterType="map"  resultMap="userRoleMap" >
+        select * from
+        <include refid="tableName"/>
+        where
+        (data_status = 1 or data_status is null)
+        and role_id = #{roleId}
+    </select>
+
+    <!--用户查找角色-->
+    <select id="getByUserId" parameterType="map"  resultMap="userRoleMap" >
+        select * from
+        <include refid="tableName"/>
+        where
+        (data_status = 1 or data_status is null)
+        and user_id = #{userId}
+    </select>
+
+    <select id="getUserRoleById" parameterType="String" resultMap="userRoleMap">
+        select * from
+        <include refid="tableName"/>
+        where id = #{id}
+    </select>
+
+    <select id="getUserRoleByIds"  resultMap="userRoleMap" >
+        select * from
+        <include refid="tableName"/>
+        where id in
+        <foreach collection="list" item="id" open=" (" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <resultMap id="userRoleMap" type="UserRole" autoMapping="true">
+        <id property="id" column="id"/>
+        <association property="role" javaType="Role">
+            <id column="role_id" property="id"/>
+        </association>
+        <association property="user" javaType="User">
+            <id column="user_id" property="id"/>
+        </association>
+    </resultMap>
+</mapper>

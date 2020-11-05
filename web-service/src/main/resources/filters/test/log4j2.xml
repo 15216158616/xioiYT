@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <property name="LOG_HOME">/data/www/logs/web-service</property>
+    </Properties>
+    <Appenders>
+        <RollingFile name="rollingFile" fileName="${LOG_HOME}/web-service-api.log"
+                     filePattern="${LOG_HOME}/server-api-$${date:yyyy-MM}/server-api-%d{MM-dd-yyyy}-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <SizeBasedTriggeringPolicy size="10MB"/>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <logger name="com.yuanxia.exequy.sale" level="DEBUG"/>
+        <logger name="com.mybatis" level="DEBUG"/>
+        <logger name="org.apache.ibatis" level="DEBUG"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <root level="ERROR">
+            <appender-ref ref="rollingFile" />
+        </root>
+    </Loggers>
+</Configuration>

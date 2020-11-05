@@ -1,0 +1,147 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanxiatech.xgj.funeral.system.dao.MenuDaoImpl">
+
+    <sql id="tableName">yx_common_menu</sql>
+
+    <!--新增菜单-->
+    <insert id="insertMenu">
+        insert into<include refid="tableName"/>(
+        id,parent_id,menu_name,menu_type,icon,url,route_name,route_path,route_component,route_cache,
+        perms,visible,order_num,remark,create_time, create_user_id, data_status)
+        values(
+        #{id},#{parentId},#{menuName},#{menuType},#{icon},#{url},#{routeName},#{routePath},#{routeComponent},
+        #{routeCache},#{perms},#{visible},#{orderNum},#{remark},#{createTime}, #{createUserId},#{dataStatus})
+    </insert>
+
+    <!--逻辑删除菜单-->
+    <delete id="logicDeleteMenus" parameterType="List">
+        <foreach collection="list" item="item" separator=";">
+            update <include refid="tableName" />
+            set
+            delete_time = #{item.deleteTime},
+            delete_user_id = #{item.deleteUserId},
+            data_status = #{item.dataStatus}
+            <where>
+                id = #{item.id}
+            </where>
+        </foreach>
+    </delete>
+
+    <!--修改菜单-->
+    <update id="updateMenu">
+        update <include refid="tableName"/>
+        <set>
+            <if test="parentId != null and parentId != ''">
+                parent_id = #{parentId},
+            </if>
+            <if test="menuName != null">
+                menu_name = #{menuName},
+            </if>
+            <if test="menuType != null">
+                menu_type = #{menuType},
+            </if>
+            <if test="icon != null">
+                icon = #{icon},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="routeName != null">
+                route_name = #{routeName},
+            </if>
+            <if test="routePath != null">
+                route_path = #{routePath},
+            </if>
+            <if test="routeComponent != null">
+                route_component = #{routeComponent},
+            </if>
+            <if test="routeCache != null">
+                route_cache = #{routeCache},
+            </if>
+            <if test="perms != null">
+                perms = #{perms},
+            </if>
+            <if test="visible != null">
+                visible = #{visible},
+            </if>
+            <if test="orderNum != null">
+                order_num = #{orderNum},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="lastUpdateUserId != null and lastUpdateUserId != ''">
+                last_update_user_id = #{lastUpdateUserId}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--查询菜单列表-->
+    <select id="queryByParam" parameterType="MenuQueryParam" resultType="Menu">
+        select * from <include refid="tableName"/>
+        <where>
+            <if test="menuType != null">
+                and menu_type = #{menuType}
+            </if>
+            <if test="visible != null">
+                and visible = #{visible}
+            </if>
+            <if test="menuName != null and menuName != ''">
+                and menu_name like concat('%',#{menuName},'%')
+            </if>
+            <if test="menuIds != null and menuIds.size > 0">
+                and id in
+                <foreach collection="menuIds" item="menuId" open=" (" separator="," close=")">
+                    #{menuId}
+                </foreach>
+            </if>
+            and data_status = 1
+        </where>
+        order by order_num
+    </select>
+
+    <!--获取用户选中菜单树-->
+    <select id="getUserMenu" parameterType="List" resultType="Menu">
+        select * from <include refid="tableName"/>
+        where 1 = 1
+        and id in
+        <foreach collection="list" open="(" close=")" separator="," item="menuId">
+            #{menuId}
+        </foreach>
+        and (data_status = 1 or data_status is null)
+        order by order_num
+    </select>
+
+    <!--获取所有菜单-->
+    <select id="getAllMenus" resultType="Menu">
+        select * from <include refid="tableName"/>
+        <where>
+            data_status = 1
+        </where>
+        order by order_num
+    </select>
+
+    <!--根据id查询菜单-->
+    <select id="getMenuById" parameterType="String" resultType="Menu">
+        select * from
+        <include refid="tableName"/>
+        where id = #{id}
+    </select>
+
+    <!--根据多个id查询菜单-->
+    <select id="getMenuByIds" resultType="Menu">
+        select * from
+        <include refid="tableName"/>
+        where id in
+        <foreach collection="list" item="id" open=" (" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

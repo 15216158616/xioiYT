@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+
+    <!--文件存储 -->
+    <bean id="attachStorageService"
+          class="com.yuanxiatech.xgj.common.attach.service.local.LocalAttachStorageServiceImpl">
+        <constructor-arg name="attachDomain" value="${attach.local.attachDomain}"/>
+        <constructor-arg name="storagePath" value="${attach.local.storagePath}"/>
+    </bean>
+
+    <bean id="imageStorageService"
+          class="com.yuanxiatech.xgj.common.attach.service.local.LocalImageStorageServiceImpl">
+        <constructor-arg name="attachDomain" value="${attach.local.attachDomain}"/>
+        <constructor-arg name="storagePath" value="${attach.local.storagePath}"/>
+    </bean>
+
+    <bean id="imageOperator"
+          class="com.yuanxiatech.xgj.common.attach.service.compare.DefaultFileOperator">
+        <constructor-arg ref="imageStorageService"/>
+    </bean>
+
+</beans>

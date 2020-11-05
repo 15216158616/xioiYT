@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuanxiatech.xgj.funeral.system.dao.RoleDaoImpl">
+    
+    <sql id="tableName">yx_common_role</sql>
+
+    <!--新增角色-->
+    <insert id="insertRole" parameterType="Role">
+        insert into <include refid="tableName"/>
+        (id,partner_id,name,code,remark,create_time,create_user_id,data_status)
+        values
+        (#{id},#{partner.id},#{name},#{code},#{remark},#{createTime},#{createUserId},#{dataStatus})
+    </insert>
+
+    <!--逻辑删除角色-->
+    <delete id="logicDeleteRoles" parameterType="list">
+        <foreach collection="list" item="item" separator=";">
+            update
+            <include refid="tableName"/>
+            set delete_user_id = #{item.deleteUserId}, delete_time = #{item.deleteTime}, data_status = #{item.dataStatus}
+            where id = #{item.id}
+        </foreach>
+    </delete>
+
+    <!--修改角色-->
+    <update id="updateRole" parameterType="Role">
+        update <include refid="tableName"/>
+        set
+        name = #{name},
+        code = #{code},
+        remark = #{remark},
+        last_update_time = #{lastUpdateTime},
+        last_update_user_id = #{lastUpdateUserId}
+        where id = #{id}
+    </update>
+
+    <!--角色查询分页-->
+    <select id="queryByParam" parameterType="RoleQueryParam" resultMap="roleMap">
+        select * from <include refid="tableName"/>
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="code != null and code != ''">
+                and code like concat('%',#{code},'%')
+            </if>
+            and (data_status = 1 or data_status is null)
+            and partner_id = #{partnerId}
+        </where>
+        order by create_time desc
+
+    </select>
+
+    <!--机构的角色-->
+    <select id="getByPartnerId" parameterType="String"  resultMap="roleMap" >
+        select * from
+        <include refid="tableName"/>
+        where
+        (data_status = 1 or data_status is null)
+        and partner_id = #{partnerId}
+    </select>
+
+    <!--角色id和机构查询-->
+    <select id="getByRoleIdsAndPartnerId" parameterType="map"  resultMap="roleMap" >
+        select * from
+        <include refid="tableName"/>
+        where 1 = 1
+        <if test="roleIds != null and roleIds.size > 0">
+            and id in
+            <foreach collection="roleIds" open="(" item="roleId" close=")" separator=",">
+                #{roleId}
+            </foreach>
+        </if>
+        and (data_status = 1 or data_status is null)
+        and partner_id = #{partnerId}
+    </select>
+
+    <!--多个id查询-->
+    <select id="getRoleByIds" parameterType="list" resultMap="roleMap">
+        select * from <include refid="tableName" />
+        <where>
+            id in
+            <foreach collection="list" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <!--id查询-->
+    <select id="getRoleById" parameterType="String" resultMap="roleMap">
+        select * from <include refid="tableName" />
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <resultMap id="roleMap" type="Role" autoMapping="true">
+        <id column="id" property="id"/>
+        <association property="partner" javaType="Partner">
+            <result column="partner_id" property="id"/>
+        </association>
+    </resultMap>
+
+</mapper>

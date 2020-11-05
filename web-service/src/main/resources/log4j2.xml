@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <logger name="com.yuanxiatech" level="DEBUG"/>
+        <logger name="com.fasterxml" level="DEBUG"/>
+        <logger name="com.mybatis" level="DEBUG"/>
+        <logger name="org.apache.ibatis" level="DEBUG"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <!--<logger name="com.alibaba.dubbo" level="INFO" />-->
+        <root level="ERROR">
+            <appender-ref ref="console"/>
+        </root>
+    </Loggers>
+</Configuration>
+
+
