@@ -225,10 +225,4 @@
 
 <style scoped>
 
-  .head_pic{
-    width:40px;
-    height: 40px;
-
-  }
-
 </style>
